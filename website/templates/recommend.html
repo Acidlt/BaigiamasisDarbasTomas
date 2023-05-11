@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* Import Google font - Poppins */
+
+.stars i {
+color: #e6e6e6;
+
+cursor: pointer;
+transition: color 0.2s ease;
+}
+.stars i.active {
+color: #ff9c1a;
+}
+
+</style>
+<div class="container">
+
+<form action="{{ url_for('views.recommend') }}" method="POST">
+    <div style="display: flex;">
+      <input type="text" class="form-control mt-3" name="title" placeholder="Enter a movie title"/>
+    </div>
+    <div class="form-group">
+      <br>
+      <div id="recommendSystems">
+        <select class="form-control " name="recommendSystem" onchange="updateSelectedRecommendSystem(event)" data-previous-value="Action">
+          <option value="" selected>Select a recommendation algorithm</option>
+          
+          <option value="Cosine" {% if selectedRecommendSystem == 'Cosine' %}selected{% endif %}>Content Based Filtering Using Cosine Similarity</option>
+          <option value="KNN" {% if selectedRecommendSystem == 'KNN' %}selected{% endif %}>Collaborative Filtering Based on Rating using K-Nearest Neighbor</option>
+          
+        </select>
+        <button type="submit" class="btn btn-primary mt-3">Recommend movies</button>
+        <input type="hidden" name="recommend_type" value="{{ selectedRecommendSystem }}">
+        <h5 class="text-light mt-1">Or select an algorithm to recommend movies based on preferences </h5>
+        <button type="submit" class="btn btn-primary ml-2" name="recommend_type_button" value="CosineUser">Cosine</button>
+        <button type="submit" class="btn btn-primary ml-2" name="recommend_type_button" value="KNNUser">K-Nearest Neighbor</button>
+        <button type="submit" class="btn btn-primary ml-2" name="recommend_type_button" value="KerasUser">Keras Neural Network</button>
+        <button type="submit" class="btn btn-primary ml-2" name="recommend_type_button" value="HybridUser">Hybrid</button>
+        <input type="hidden" name="recommend_type_button" value="{{ selectedRecommendSystem }}">
+      </div>
+  </div>
+  </form>
+   {% if movieTitle is not none %}
+  <h5 class="text-light mt-1">Movie input: {{ movieTitle.iloc[0]["title"] }}</h5>
+{% endif %}
+
+
+<div class="table-responsive ">
+  <table class="table text-light">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Genre</th>
+        <th>Links</th>
+        <th>Rate the movie</th>
+      </tr>
+    </thead>
+    <tbody> 
+      {% for row in row_data %}
+  <tr>
+    {% for col, row_ in zip(column_names, row) %}
+    {% if col not in ['imdb_id', 'tmdb_id'] %}
+    <td>
+    {{ row_ }}
+    </td>
+    {% endif %}
+    {% endfor %}
+    <td>
+      {% if row[3] is not none and row[3]|string != 'nan' %}
+        <a href="https://www.imdb.com/title/tt{{ row[3] }}/" target="_blank">IMDB</a>
+      {% endif %}
+      {% if row[4] is not none and row[4]|string != 'nan' %}
+        <a href="https://www.themoviedb.org/movie/{{ row[4] }}?language=en-US" target="_blank">TMDB</a>
+      {% endif %}
+    </td>
+       <td>
+          
+        <div class="stars" id="stars-{{ row[0] }}" data-rating="{{ user_ratings[row[0]] if row[0] in user_ratings else 0 }}">
+            {% for i in range(1, 11) %}
+            <i class="fas fa-star" data-value="{{ i/2 }}" data-movie-id="{{ row[0] }}"></i>
+            {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  const stars = document.querySelectorAll(".stars i");
+  stars.forEach((star) => {
+    star.addEventListener("click", () => {
+      const row = star.closest("tr");
+      const rowStars = row.querySelectorAll(".stars i");
+      const clickedIndex = Array.from(rowStars).indexOf(star);
+      rowStars.forEach((star, index) => {
+        index <= clickedIndex ? star.classList.add("active") : star.classList.remove("active");
+      });
+      const movieId = star.dataset.movieId;
+      const ratingValue = star.dataset.value;
+      fetch(`/update_rating?movie_id=${movieId}&rating_value=${ratingValue}`);
+    });
+  });
+  function fillStars(row) {
+    const stars = row.querySelectorAll(".stars i");
+    const rating = parseFloat(row.querySelector(".stars").dataset.rating);
+    stars.forEach((star, index) => {
+        if (index < rating * 2) {
+            star.classList.add("active");
+        } else {
+            star.classList.remove("active");
+        }
+    });
+}
+document.querySelectorAll("tbody tr").forEach((row) => {
+  fillStars(row);
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const recommendSystemSelect = document.querySelector('select[name="recommendSystem"]');
+  const recommendTypeInput = document.querySelector('input[name="recommend_type"]');
+
+  recommendSystemSelect.addEventListener('change', function(event) {
+    recommendTypeInput.value = event.target.value;
+  });
+});
+
+</script>
+{% endblock %}

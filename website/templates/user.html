@@ -1,0 +1,120 @@
+{% extends "base.html" %}{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col md-12">
+            <div class="jumbotron p-3">
+                <h2 class="text-white"> Manage Users</h2>
+                    <button type="button" class="btn btn-success mb-2 " data-toggle="modal" data-target="#mymodal">Add new</button>
+
+                <table class="table table text-light mb-4">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>First Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in all_users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.first_name }}</td>
+                            <td>
+                                <a href="/update/{{user.id}}" class="btn btn-sm btn-primary" data-toggle="modal"
+                                    data-target="#modaledit{{user.id}}">Edit</a>
+                                <form action="{{ url_for('views.delete', user_id=user.id) }}" method="POST"
+                                    style="display: inline;">
+                                    <button class="btn btn-sm btn-danger" type="button"
+                                        onclick="confirmDelete('{{ user.id }}')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <div id="modaledit{{user.id}}" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Update Information</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="{{ url_for('views.update') }}" method="POST">
+                                            <div class="form-group">
+                                                <label>Name:</label>
+                                                <input type="hidden" name="id" value="{{user.id}}">
+                                                <input type="text" class="form-control" name="firstName" id="firstName"
+                                                    value="{{user.first_name}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Email:</label>
+                                                <input type="text" class="form-control" name="email" id="email"
+                                                    value="{{user.email}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary mt-2" type="sbumit">Update</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="mymodal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Add User</h4>
+                        </div>
+                        <form method="POST">
+                            <div class="modal-body">
+                                
+                                <div class="form-group customForm form-group mt-3 mb-1 ">
+                                    <label for="email">Email Adress</label>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                        placeholder="Enter email" />
+                                </div>
+                                <div class="form-group customForm mb-1">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" class="form-control" id="firstName" name="firstName"
+                                        placeholder="Enter first name" />
+                                </div>
+                                <div class="form-group customForm mb-1">
+                                    <label for="password1">Password</label>
+                                    <input type="password" class="form-control" id="password1" name="password1"
+                                        placeholder="Enter password" />
+                                </div>
+                                <div class="form-group customForm mb-1">
+                                    <label for="password2">Password (Confirm)</label>
+                                    <input type="password" class="form-control" id="password2" name="password2"
+                                        placeholder="Confirm password" />
+                                </div>
+                                <br />
+                                <button type="submit" class="btn customButton text-light btn-success">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+    function confirmDelete(userId) {
+        if (confirm("Are you sure you want to delete this user?")) {
+            document.querySelector(`form[action='/delete/${userId}']`).submit();
+        }
+    }
+</script>
+{% endblock %}

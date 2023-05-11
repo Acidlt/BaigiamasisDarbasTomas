@@ -1,0 +1,74 @@
+{% extends "base.html" %}{% block title %}Home{% endblock %}
+
+{%block content %}
+
+<section class="text-light p-5 text-center text-sm-start">
+    <div class="container">
+    <div class="d-sm-flex align-items-center justify-content-between">
+        <div>
+            <h1>
+                Movie Recommendation System
+            </h1>
+            <p class="lead">It's a simple system where a user can give ratings to their favorite movies and get recommendations based on those ratings or just simply based on a movie.</p>
+            <p class="lead">The system has 4 recommendation algorithms. </p>
+        
+        </div>
+        <img class="img-fluid w-25 d-none d-md-block" src="static/coder.svg" alt="">
+        </div>
+    </div>
+</section>
+<section class="p-5">
+    <div class="container">
+        <div class="row text-center text-light g-4">
+            <div class="col-md">
+                <div class="card bg-dark text-light">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-3">
+                            Content-Based filtering using Cosine Similarity
+                        </h3>
+                        <p class="card-text m">
+                            This filtering is based on Cosine-Similarity. What that means is that this algorithm calculates how similar movies are based on their features.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card bg-dark text-light">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-3">
+                            Collaborative filtering using K-NN
+                        </h3>
+                        <p class="card-text m">
+                            This filtering is based on k-Nearest Neighbors algorithm. What that means is that this algorithm finds nearest neighbors in this cases similar users. Then it predicts ratings for specific movies based on those neighbors.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card bg-dark text-light">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-3">
+                            Collaborative filtering using neural networks.
+                        </h3>
+                        <p class="card-text m">
+                            This filtering is based on using neural networks. What that means is that a neural network model is used for finding latent factors for both users and movies. Then it can predict ratings based on user and movie latent factors.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card bg-dark text-light">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-3">
+                            Hybrid filtering
+                        </h3>
+                        <p class="card-text m">
+                            This filtering is based on a hybrid approach. What that means is that it gives weights to K-NN and Neural network methods and combines the recommendations from those two methods.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

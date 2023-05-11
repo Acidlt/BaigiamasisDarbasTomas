@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .pagination .page-item .page-link {
+        background-color: #343a40;
+        color: #fff;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+    
+</style>
+
+<div class="container">
+    <div class="container text-light">
+    <h2> <b>Manage movies </b><button type="button" class="btn btn-success " data-toggle="modal"
+        data-target="#mymodal">Add new</button></h2>
+    </div>
+    <table class="table text-light">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Links</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movie in all_movies %}
+                <tr>
+                    <td>{{ movie.id }}</td>
+                    <td>{{ movie.title }}</td> 
+                    <td>{{ movie.genre }}</td>
+                    <td>
+                        {% for link in movie.links %}
+                        <a href="https://www.imdb.com/title/tt{{ link.imdb_id }}/" target="_blank">IMDB</a>
+                        <a href="https://www.themoviedb.org/movie/{{ link.tmdb_id }}?language=en-US" target="_blank">TMDB</a>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <a href="/updateMovie/{{movie.id}}" class="btn btn-sm btn-primary" data-toggle="modal"
+                                    data-target="#modaledit{{movie.id}}">Edit</a>
+                                    <form action="{{ url_for('views.deleteMovie', movie_id=movie.id) }}" method="POST"
+                                    style="display: inline;">
+                                    <button class="btn btn-sm btn-danger" type="button"
+                                        onclick="confirmDelete('{{ movie.id }}')">Delete</button>
+                                </form>
+                    </td>
+                </tr>
+                <div id="modaledit{{movie.id}}" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Update Information</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="{{ url_for('views.updateMovie') }}" method="POST">
+                                            <div class="form-group">
+                                                <label>Movie Title:</label>
+                                                <input type="hidden" name="id" value="{{movie.id}}">
+                                                <input type="text" class="form-control" name="title" id="title"
+                                                    value="{{movie.title}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Genre:</label>
+                                                <input type="text" class="form-control" name="genre" id="genre"
+                                                    value="{{movie.genre}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary" type="sbumit">Update</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center my-4">
+        {{ pagination.links }}
+    </div>
+    <div id="mymodal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add movie</h4>
+                </div>
+                <form method="POST" id="addMovieForm">
+                    <div class="modal-body">
+                        <div class="form-group customForm form-group mt-3 mb-1 ">
+                            <label for="title">Title</label>
+                            <input type="title" class="form-control" id="title" name="title"
+                                placeholder="Enter title" />
+                        </div>
+                        <div class="form-group mb-1">
+                            <label for="genre">Genre</label>
+                            <div id="genres">
+                                <select class="form-control mb-1" name="genre" onchange="updateSelectedGenres(event)" data-previous-value="Action">
+                                    <option value="Action">Action</option>
+                                    <option value="Adventure">Adventure</option>
+                                    <option value="Animation">Animation</option>
+                                    <option value="Biography">Biography</option>
+                                    <option value="Comedy">Comedy</option>
+                                    <option value="Crime">Crime</option>
+                                    <option value="Documentary">Documentary</option>
+                                    <option value="Drama">Drama</option>
+                                    <option value="Family">Family</option>
+                                    <option value="Fantasy">Fantasy</option>
+                                    <option value="Film-Noir">Film-Noir</option>
+                                    <option value="History">History</option>
+                                    <option value="Horror">Horror</option>
+                                    <option value="Music">Music</option>
+                                    <option value="Musical">Musical</option>
+                                    <option value="Mystery">Mystery</option>
+                                    <option value="Romance">Romance</option>
+                                    <option value="Sci-Fi">Sci-Fi</option>
+                                    <option value="Sport">Sport</option>
+                                    <option value="Thriller">Thriller</option>
+                                    <option value="War">War</option>
+                                    <option value="Western">Western</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-primary mt-2" onclick="addGenre()">Add more genres</button>
+                        </div>
+                        <br />
+                        <button type="submit" class="btn customButton text-light btn-success" onclick="submitForm(event)">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(movieId) {
+        if (confirm("Are you sure you want to delete this movie?")) {
+            // If the movie confirms, submit the delete form
+            document.querySelector(`form[action='/deleteMovie/${movieId}']`).submit();
+        }
+    }
+    function addGenre() {
+        const genresDiv = document.getElementById("genres");
+        const select = document.createElement("select");
+        select.classList.add("form-control", "mb-1");
+        select.name = "genre";
+    
+        const genres = ['Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'Film-Noir', 'History', 'Horror', 'Music', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western'];
+    
+        genres.forEach(genre => {
+            const option = document.createElement("option");
+            option.value = genre;
+            option.innerText = genre;
+            select.appendChild(option);
+        });
+    
+        select.addEventListener('change', updateSelectedGenres); // Add this line
+    
+        genresDiv.appendChild(select);
+    }
+    const selectedGenres = new Set(["Action"]);
+
+    function updateSelectedGenres(e) {
+        const genre = e.target.value;
+        const previousGenre = e.target.getAttribute('data-previous-value');
+    
+        if (previousGenre) {
+            selectedGenres.delete(previousGenre);
+        }
+    
+        if (!selectedGenres.has(genre)) {
+            selectedGenres.add(genre);
+        }
+    
+        e.target.setAttribute('data-previous-value', genre);
+    }
+
+function submitForm(e) {
+    e.preventDefault();
+
+    const genreArray = Array.from(selectedGenres); // Convert the Set to an array
+
+    const form = document.getElementById("addMovieForm");
+    const formData = new FormData(form);
+    formData.append("genreArray", JSON.stringify(genreArray));
+
+    fetch(form.action, {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert("Error adding movie");
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+}
+
+</script>
+{% endblock %}
